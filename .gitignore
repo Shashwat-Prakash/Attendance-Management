@@ -102,3 +102,7 @@ dist
 
 # TernJS port file
 .tern-port
+/.vs
+/Attendance-Manage/.vs/Attendance-Manage/v16
+/Attendance-Manage/Attendance-Manage/bin/Debug/net5.0
+/Attendance-Manage/Attendance-Manage/obj
