@@ -5,11 +5,13 @@ using System.Threading.Tasks;
 
 namespace Attendance_Manage.Models
 {
-    public enum BreakType
+    public enum WorkType
     {
-        tea,
-        lunch,
-        snacks,
-        sos
+        freelancer,
+        intership,
+        contract,
+        permanent,
+        full_time,
+        part_time
     }
 }
