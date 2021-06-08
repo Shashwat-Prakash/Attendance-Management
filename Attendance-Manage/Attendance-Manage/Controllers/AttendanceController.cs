@@ -15,9 +15,11 @@ namespace Attendance_Manage.Controllers
     public class AttendanceController : ControllerBase
     {
         private readonly IAttendanceService _attendanceService;
-        public AttendanceController(IAttendanceService attendanceService)
+        private readonly IBreakService _breakService;
+        public AttendanceController(IAttendanceService attendanceService, IBreakService breakService)
         {
             _attendanceService = attendanceService;
+            _breakService = breakService;
         }
 
         [HttpPost]
@@ -37,8 +39,25 @@ namespace Attendance_Manage.Controllers
         {
             var attendance = await _attendanceService.GetAttendanceAsync(id);
             if(attendance != null)
+            {
+                var _break = await _breakService.GetBreakAsyncByAttendanceId(attendance.attendance_id);
+                if (_break != null)
+                {
+                    attendance.break_attendance = _break;
+                    attendance.hours = _break.Select(x => x.break_hours).Sum();
+                }
                 return Ok(attendance);
+            }
             return NotFound(new { message = "No attendance found", status_code = HttpStatusCode.NotFound });
         }
+
+        /*[HttpPut("{id}")]
+        public async Task<IActionResult> Update([FromBody] Attendance attendance, long id)
+        {
+            if (attendance == null || !ModelState.IsValid)
+                return BadRequest(new { message = "Invalid request body", status_code = HttpStatusCode.BadRequest });
+
+
+        }*/
     }
 }
