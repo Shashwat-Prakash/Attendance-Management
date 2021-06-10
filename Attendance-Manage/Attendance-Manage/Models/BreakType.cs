@@ -10,6 +10,7 @@ namespace Attendance_Manage.Models
         tea,
         lunch,
         snacks,
-        sos
+        sos,
+        others
     }
 }

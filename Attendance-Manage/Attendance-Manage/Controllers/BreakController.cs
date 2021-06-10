@@ -1,4 +1,5 @@
-﻿using Attendance_Manage.Models;
+﻿using Attendance_Manage.Helpers;
+using Attendance_Manage.Models;
 using Attendance_Manage.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -15,16 +16,22 @@ namespace Attendance_Manage.Controllers
     public class BreakController : ControllerBase
     {
         private readonly IBreakService _breakService;
+        long org_id = 3;
         public BreakController(IBreakService breakService)
         {
             _breakService = breakService;
         }
 
+        /// <summary>
+        /// Create a break
+        /// </summary>
+        /// <param name="attendance_break"></param>
+        /// <returns></returns>
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] Break attendance_break)
         {
             if (attendance_break == null || !ModelState.IsValid)
-                return BadRequest(new { message = "Invalid request body", status_code = HttpStatusCode.BadRequest });
+                return BadRequest(Logger.Error("Invalid request body"));
 
             var break_id = await _breakService.CreateBreak(attendance_break);
 
@@ -32,13 +39,18 @@ namespace Attendance_Manage.Controllers
             return Ok(attendance_break);
         }
 
-        [HttpGet("{id}")]
-        public async Task<IActionResult> Get(long id)
+        /// <summary>
+        /// Get break by Id
+        /// </summary>
+        /// <param name="break_id"></param>
+        /// <returns></returns>
+        [HttpGet("{break_id}")]
+        public async Task<IActionResult> Get(long break_id)
         {
-            var _break = await _breakService.GetBreakAsync(id);
+            var _break = await _breakService.GetBreakAsync(break_id, org_id);
             if (_break != null)
                 return Ok(_break);
-            return NotFound(new { message = "No break found", status_code = HttpStatusCode.NotFound });
+            return NotFound(Logger.Error("No break found", HttpStatusCode.NotFound));
         }
     }
 }

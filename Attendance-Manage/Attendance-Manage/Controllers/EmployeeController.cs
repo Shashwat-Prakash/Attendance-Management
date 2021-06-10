@@ -26,9 +26,9 @@ namespace Attendance_Manage.Controllers
             if (employee == null || !ModelState.IsValid)
                 return BadRequest(new { message = "Invalid request body", status_code = HttpStatusCode.BadRequest });
 
-            var emp_id = await _employeeService.CreateEmployee(employee);
+            var user_id = await _employeeService.CreateEmployee(employee);
 
-            employee.emp_id = emp_id;
+            employee.user_id = user_id;
             return Ok(employee);
         }
     }

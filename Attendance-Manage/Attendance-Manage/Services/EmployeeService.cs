@@ -28,9 +28,9 @@ namespace Attendance_Manage.Services
         public async Task<long> CreateEmployee(Employee employee)
         {
             using MySqlConnection connection = new MySqlConnection(_writerDbConnection);
-            const string sqlQuery = @"Insert Into Employee (emp_id, name, contact, email_id, dept_name, designation_name,
+            const string sqlQuery = @"Insert Into Employee (user_id, org_id, name, contact, email_id, dept_name, designation_name,
                     salary, joining_date, type)
-                    Values(@emp_id, @name, @contact, @email_id, @dept_name, @designation_name,
+                    Values(@user_id, @org_id, @name, @contact, @email_id, @dept_name, @designation_name,
                     @salary, @joining_date, @type); Select LAST_INSERT_ID(); ";
             long id = await connection.ExecuteScalarAsync<long>(sqlQuery, employee);
             return id;

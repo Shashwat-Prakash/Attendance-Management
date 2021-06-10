@@ -9,7 +9,8 @@ namespace Attendance_Manage.Models
 {
     public class Employee
     {
-        public long emp_id { get; set; }
+        public long user_id { get; set; }
+        public long org_id { get; set; }
         public string name { get; set; }
         public string contact { get; set; }
         public string email_id { get; set; }
