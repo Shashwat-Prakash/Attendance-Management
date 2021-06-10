@@ -16,11 +16,13 @@ namespace Attendance_Manage.Models
         public DateTime? time_out { get; set; }
         [JsonPropertyName("break")]
         public IEnumerable<Break> break_ { get; set; }
+        public DateTime created_at { get; set; }
+        public DateTime? updated_at { get; set; }
 
         //public DateTime? current_day { get; set; }
         //public double hours { get; set; }
         //public double delay { get; set; }
-        /*public string status { get; set; }
+        /*public string status { get; set; }  ------> Status can be absent or present or half-time or etc
         [JsonConverter(typeof(DateTimeConverter))]
         public DateTime? last_time_in { get; set; }
         [JsonConverter(typeof(DateTimeConverter))]

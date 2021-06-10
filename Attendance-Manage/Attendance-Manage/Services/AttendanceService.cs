@@ -12,9 +12,12 @@ namespace Attendance_Manage.Services
 {
     public interface IAttendanceService
     {
-        Task<long> CreateAttendance(Attendance attendance);
-        Task<Attendance> GetAttendanceAsync(long attendance_id, long org_id);
-        Task<bool> UpdateAttendanceAsync(Attendance attendance);
+        Task<long> CreateAttendanceAsync(Attendance attendance);
+        Task<Attendance> GetAttendanceByIdAsync(long attendance_id, long org_id);
+        Task<IEnumerable<dynamic>> GetAttendanceByOrgIdAsync(long org_id, Paged paged, IDictionary<string, string> filter);
+        Task<bool> UpdateAttendanceByIdAsync(Attendance attendance);
+        Task<int> DeleteAttendanceAsync(long[] idToDelete, long org_id);
+        Task<int> GetAttendanceCountAsync(long org_id, IDictionary<string, string> filters);
     }
 
     public class AttendanceService : IAttendanceService
@@ -26,7 +29,8 @@ namespace Attendance_Manage.Services
             _writerDbConnection = RDSConnection.GetDbConnectionString(config, writer: true);
             _readerDbConnection = RDSConnection.GetDbConnectionString(config, writer: false);
         }
-        public async Task<long> CreateAttendance(Attendance attendance)
+
+        public async Task<long> CreateAttendanceAsync(Attendance attendance)
         {
             using MySqlConnection connection = new MySqlConnection(_writerDbConnection);
             const string sqlQuery = @"Insert Into Attendance (user_id, org_id, time_in)
@@ -35,23 +39,58 @@ namespace Attendance_Manage.Services
             return id;
         }
 
-        public async Task<Attendance> GetAttendanceAsync(long attendance_id, long org_id)
+        public async Task<Attendance> GetAttendanceByIdAsync(long attendance_id, long org_id)
         {
             using MySqlConnection connection = new MySqlConnection(_writerDbConnection);
-            const string sqlQuery = @"Select attendance_id, user_id, org_id, time_in, time_out
+            const string sqlQuery = @"Select attendance_id, user_id, org_id, time_in, time_out, created_at, updated_at
                     from Attendance where attendance_id = @attendance_id and org_id = @org_id";
 
             var attendance = await connection.QueryFirstOrDefaultAsync<Attendance>(sqlQuery, new { attendance_id, org_id });            
             return attendance;
         }
 
-        public async Task<bool> UpdateAttendanceAsync(Attendance attendance)
+        public async Task<IEnumerable<dynamic>> GetAttendanceByOrgIdAsync(long org_id, Paged paged, IDictionary<string, string> filter)
+        {
+            using MySqlConnection connection = new MySqlConnection(_writerDbConnection);
+            string sqlQuery = $@"Select attendance_id, user_id, org_id, time_in, time_out, created_at, updated_at
+                    from Attendance /**where**/
+                    Order by {paged.sort} {paged.order} LIMIT {paged.offset}, {paged.limit};";
+
+            var sql = DynamicSqlExtension.FilterBuilder<Attendance>(sqlQuery, org_id, filter);
+            return await connection.QueryAsync(sql.RawSql, sql.Parameters);
+        }
+
+        public async Task<bool> UpdateAttendanceByIdAsync(Attendance attendance)
         {
             using MySqlConnection connection = new MySqlConnection(_writerDbConnection);
             const string sqlQuery = @"Update Attendance Set time_in = @time_in, time_out = @time_out                     
                     where attendance_id = @attendance_id and org_id = @org_id;";
             var rowAffected = await connection.ExecuteAsync(sqlQuery, attendance);
             return rowAffected > 0;
+        }
+
+        public async Task<int> GetAttendanceCountAsync(long org_id, IDictionary<string, string> filters)
+        {
+            string sqlQuery = @"Select count(1) as total from Attendance /**where**/ ";
+            var dynamicSql = DynamicSqlExtension.FilterBuilder<Attendance>(sqlQuery, org_id, filters);
+
+            using MySqlConnection connection = new MySqlConnection(_readerDbConnection);
+            int total = await connection.ExecuteScalarAsync<int>(dynamicSql.RawSql, dynamicSql.Parameters);            
+
+            return total;
+        }
+
+        public async Task<int> DeleteAttendanceAsync(long[] idToDelete, long org_id)
+        {            
+            using MySqlConnection connection = new MySqlConnection(_writerDbConnection);
+            const string sqlQuery = @"Delete from Attendance where attendance_id = @attendance_id and org_id = @org_id";
+            var rowAffected = await connection.ExecuteAsync(sqlQuery,
+                idToDelete.Select(x => new
+                {
+                    attendance_id = x,
+                    org_id
+                }));
+            return rowAffected;
         }
     }
 }

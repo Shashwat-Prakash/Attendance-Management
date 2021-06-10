@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Attendance_Manage.Helpers
 {
-    public class Logger
+    public static class Logger
     {
         internal static CustomError ValidationError(IList<ValidationFailure> ErrorList, HttpStatusCode status = HttpStatusCode.BadRequest)
         {
