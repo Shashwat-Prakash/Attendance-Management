@@ -16,6 +16,7 @@ namespace Attendance_Manage.Models
         public DateTime? break_time_in { get; set; }
         public DateTime? break_time_out { get; set; }
         public BreakType type { get; set; }
+        public string comment { get; set; }
         public DateTime created_at { get; set; }
         public DateTime? updated_at { get; set; }
 

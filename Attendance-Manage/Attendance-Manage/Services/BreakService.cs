@@ -67,7 +67,7 @@ namespace Attendance_Manage.Services
                     from Break /**where**/
                     Order by {paged.sort} {paged.order} LIMIT {paged.offset}, {paged.limit};";
 
-            var sql = DynamicSqlExtension.FilterBuilder<Attendance>(sqlQuery, org_id, filter);
+            var sql = DynamicSqlExtension.FilterBuilder<Break>(sqlQuery, org_id, filter);
             return await connection.QueryAsync(sql.RawSql, sql.Parameters);
         }
 

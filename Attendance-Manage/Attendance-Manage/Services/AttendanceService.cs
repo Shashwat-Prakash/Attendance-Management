@@ -33,8 +33,8 @@ namespace Attendance_Manage.Services
         public async Task<long> CreateAttendanceAsync(Attendance attendance)
         {
             using MySqlConnection connection = new MySqlConnection(_writerDbConnection);
-            const string sqlQuery = @"Insert Into Attendance (user_id, org_id, time_in)
-                    Values(@user_id, @org_id, @time_in); Select LAST_INSERT_ID(); ";
+            const string sqlQuery = @"Insert Into Attendance (user_id, org_id, shift_id, time_in, status, comment)
+                    Values(@user_id, @org_id, @shift_id, @time_in, @status, @comment); Select LAST_INSERT_ID(); ";
             long id = await connection.ExecuteScalarAsync<long>(sqlQuery, attendance);
             return id;
         }
@@ -42,7 +42,7 @@ namespace Attendance_Manage.Services
         public async Task<Attendance> GetAttendanceByIdAsync(long attendance_id, long org_id)
         {
             using MySqlConnection connection = new MySqlConnection(_writerDbConnection);
-            const string sqlQuery = @"Select attendance_id, user_id, org_id, time_in, time_out, created_at, updated_at
+            const string sqlQuery = @"Select attendance_id, user_id, org_id, shift_id, time_in, time_out, status, comment, created_at, updated_at
                     from Attendance where attendance_id = @attendance_id and org_id = @org_id";
 
             var attendance = await connection.QueryFirstOrDefaultAsync<Attendance>(sqlQuery, new { attendance_id, org_id });            
@@ -52,7 +52,7 @@ namespace Attendance_Manage.Services
         public async Task<IEnumerable<dynamic>> GetAttendanceByOrgIdAsync(long org_id, Paged paged, IDictionary<string, string> filter)
         {
             using MySqlConnection connection = new MySqlConnection(_writerDbConnection);
-            string sqlQuery = $@"Select attendance_id, user_id, org_id, time_in, time_out, created_at, updated_at
+            string sqlQuery = $@"Select attendance_id, user_id, org_id, shift_id, time_in, time_out, status, comment, created_at, updated_at
                     from Attendance /**where**/
                     Order by {paged.sort} {paged.order} LIMIT {paged.offset}, {paged.limit};";
 
@@ -63,7 +63,7 @@ namespace Attendance_Manage.Services
         public async Task<bool> UpdateAttendanceByIdAsync(Attendance attendance)
         {
             using MySqlConnection connection = new MySqlConnection(_writerDbConnection);
-            const string sqlQuery = @"Update Attendance Set time_in = @time_in, time_out = @time_out                     
+            const string sqlQuery = @"Update Attendance Set shift_id = @shift_id, time_in = @time_in, time_out = @time_out, status = @status, comment = @comment
                     where attendance_id = @attendance_id and org_id = @org_id;";
             var rowAffected = await connection.ExecuteAsync(sqlQuery, attendance);
             return rowAffected > 0;
