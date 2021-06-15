@@ -33,8 +33,8 @@ namespace Attendance_Manage.Controllers
             if (shift == null || !ModelState.IsValid)
                 return BadRequest(Logger.Error("Invalid request body"));
 
-            shift.shift_start = default(DateTime).Add(shift.shift_start.TimeOfDay);
-            shift.shift_end.ToShortTimeString();
+            //shift.shift_start = default(DateTime).Add(shift.shift_start.TimeOfDay);
+            //shift.shift_end.ToShortTimeString();
 
             var shift_id = await _shiftService.CreateShiftAsync(shift);
 
